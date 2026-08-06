@@ -8,10 +8,7 @@ from app.db.base_class import Base
 from app.db.session import engine
 
 async def seed():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-        
+    # Tables are created via lifespan in main.py
     async with AsyncSessionLocal() as db:
         # Create Movies
         spiderman = Movie(

@@ -77,7 +77,7 @@ export function MovieDetailsPage() {
         
         <button 
           onClick={() => navigate('/')}
-          className="absolute flex items-center gap-2 p-2 px-4 transition-colors rounded-full top-8 left-8 bg-black/50 hover:bg-cinema-red backdrop-blur-md"
+          className="absolute flex items-center gap-2 p-2 px-4 transition-colors rounded-full top-24 left-8 bg-black/50 hover:bg-cinema-red backdrop-blur-md"
         >
           <ArrowLeft size={20} />
           Voltar
