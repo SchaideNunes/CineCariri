@@ -19,13 +19,13 @@ async def seed():
             title="Homem-Aranha: Um Novo Dia",
             duration_mins=144,
             genre="Ação, Aventura, Fantasia, Ficção Científica",
-            poster_url="https://images.unsplash.com/photo-1635805737707-575885ab0820?q=80&w=800&auto=format&fit=crop" # Dummy spiderman-like poster
+            poster_url="/Assets/Homem%20aranha.webp"
         )
         odyssey = Movie(
             title="A Odisseia",
             duration_mins=172,
             genre="Ação, Aventura, Épico, Fantasia",
-            poster_url="https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?q=80&w=800&auto=format&fit=crop" # Dummy epic poster
+            poster_url="/Assets/Odysseia.webp"
         )
         
         db.add(spiderman)
