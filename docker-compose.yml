@@ -3,24 +3,31 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: cinema
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-cinema}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cinema_network
   
   backend:
-    build: ./backend
+    build:
+      context: ./backend
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/cinema
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://postgres:password@db:5432/cinema}
+      - SECRET_KEY=${SECRET_KEY}
     depends_on:
       - db
 
 volumes:
   postgres_data:
+
+networks:
+  cinema_network:

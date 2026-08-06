@@ -118,6 +118,19 @@ function App() {
 
       {/* Hero Section with 3D Background */}
       <section className="relative w-full h-screen overflow-hidden">
+        
+        {/* Navigation / Auth */}
+        <div className="absolute top-8 right-8 z-50">
+          {localStorage.getItem('token') && (
+            <button 
+              onClick={() => { localStorage.removeItem('token'); window.location.reload(); }}
+              className="px-4 py-2 text-sm font-semibold text-white transition-colors border rounded-full border-white/20 bg-white/10 hover:bg-cinema-red"
+            >
+              Sair (Logout)
+            </button>
+          )}
+        </div>
+
         <div className="absolute inset-0 z-0 pointer-events-auto">
           <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
             <ambientLight intensity={0.5} />

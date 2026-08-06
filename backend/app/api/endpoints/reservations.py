@@ -9,9 +9,14 @@ from app.db.session import get_db
 from app.models.reservation import Reservation, SeatReservation
 from app.models.user import User
 from app.schemas.reservation import ReservationCreate, ReservationResponse
-from app.api.deps import get_current_active_user
+from app.api.deps import get_current_active_user, get_current_active_admin
 
 router = APIRouter()
+
+@router.get("/all", response_model=List[ReservationResponse])
+async def read_all_reservations(db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_active_admin)):
+    result = await db.execute(select(Reservation))
+    return result.scalars().all()
 
 @router.post("/", response_model=ReservationResponse)
 async def create_reservation(

@@ -66,4 +66,9 @@ export const createReservation = async (showtimeId: number, seatIds: number[]) =
   return response.data;
 };
 
+export const logout = () => {
+  localStorage.removeItem('token');
+  window.location.reload();
+};
+
 export default api;
