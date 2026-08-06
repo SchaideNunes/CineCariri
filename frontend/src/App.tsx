@@ -4,6 +4,9 @@ import { OrbitControls, Environment, Float } from '@react-three/drei'
 import Lenis from 'lenis'
 import { gsap as gs } from 'gsap'
 import { Film, Ticket, Popcorn } from 'lucide-react'
+import { fetchMovies, fetchShowtimes } from './api'
+import type { Movie, Showtime } from './api'
+import { SeatPicker } from './components/SeatPicker'
 
 // --- THREE.JS COMPONENT ---
 function CinematicShape() {
@@ -68,8 +71,11 @@ function Preloader({ onComplete }: { onComplete: () => void }) {
 // --- MAIN APP ---
 function App() {
   const [loading, setLoading] = useState(true)
+  const [movies, setMovies] = useState<Movie[]>([])
+  const [showtimes, setShowtimes] = useState<Showtime[]>([])
+  const [activeShowtime, setActiveShowtime] = useState<Showtime | null>(null)
 
-  // Initialize Lenis Smooth Scroll
+  // Initialize Lenis Smooth Scroll & Fetch Data
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -88,6 +94,13 @@ function App() {
 
     requestAnimationFrame(raf)
 
+    Promise.all([fetchMovies(), fetchShowtimes()])
+      .then(([m, s]) => {
+        setMovies(m)
+        setShowtimes(s)
+      })
+      .catch(console.error)
+
     return () => lenis.destroy()
   }, [])
 
@@ -95,6 +108,14 @@ function App() {
     <>
       {loading && <Preloader onComplete={() => setLoading(false)} />}
       
+      {activeShowtime && (
+        <SeatPicker 
+          roomId={activeShowtime.room_id} 
+          showtimeId={activeShowtime.id} 
+          onClose={() => setActiveShowtime(null)} 
+        />
+      )}
+
       {/* Hero Section with 3D Background */}
       <section className="relative w-full h-screen overflow-hidden">
         <div className="absolute inset-0 z-0 pointer-events-auto">
@@ -130,20 +151,54 @@ function App() {
         </div>
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map((item) => (
-            <div key={item} className="relative overflow-hidden transition-transform duration-300 group glass-panel hover:-translate-y-2 cursor-pointer h-[450px]">
-              {/* Dummy Movie Poster */}
-              <div className="absolute inset-0 bg-gray-800 bg-[url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center opacity-50 group-hover:opacity-70 transition-opacity"></div>
+          {movies.length === 0 ? (
+             <p className="text-gray-400">Nenhum filme em cartaz no momento.</p>
+          ) : (
+            movies.map((movie) => {
+              const movieShowtimes = showtimes.filter(s => s.movie_id === movie.id)
               
-              <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-cinema-black to-transparent">
-                <h3 className="mb-2 text-2xl font-bold">Filme {item}</h3>
-                <div className="flex items-center gap-4 text-sm text-gray-300">
-                  <span className="flex items-center gap-1"><Ticket size={16}/> Sala VIP</span>
-                  <span className="flex items-center gap-1"><Popcorn size={16}/> 120 min</span>
+              return (
+                <div key={movie.id} className="relative overflow-hidden transition-transform duration-300 group glass-panel hover:-translate-y-2 flex flex-col h-[500px]">
+                  {/* Poster Image */}
+                  <div 
+                    className="absolute inset-0 bg-gray-800 bg-cover bg-center opacity-40 group-hover:opacity-60 transition-opacity"
+                    style={{ backgroundImage: `url(${movie.poster_url || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop'})` }}
+                  ></div>
+                  
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-cinema-black via-cinema-black/80 to-transparent">
+                    <h3 className="mb-2 text-2xl font-bold">{movie.title}</h3>
+                    
+                    <div className="flex items-center gap-4 text-sm text-gray-300 mb-4">
+                      <span className="flex items-center gap-1"><Ticket size={16}/> {movie.genre}</span>
+                      <span className="flex items-center gap-1"><Popcorn size={16}/> {movie.duration_mins} min</span>
+                    </div>
+                    
+                    <div className="mt-4 border-t border-white/10 pt-4">
+                      <p className="text-sm font-semibold mb-2 text-cinema-gold">Sessões Disponíveis:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {movieShowtimes.length === 0 ? (
+                          <span className="text-xs text-gray-400">Em breve</span>
+                        ) : (
+                          movieShowtimes.map(st => {
+                            const time = new Date(st.start_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                            return (
+                              <button 
+                                key={st.id} 
+                                onClick={() => setActiveShowtime(st)}
+                                className="px-3 py-1 text-xs font-bold bg-white/10 hover:bg-cinema-red border border-white/20 rounded transition-colors"
+                              >
+                                {time}
+                              </button>
+                            )
+                          })
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              )
+            })
+          )}
         </div>
       </section>
     </>

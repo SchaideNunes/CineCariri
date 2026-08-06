@@ -9,7 +9,7 @@
 3. **Technology Stack**:
    - **Backend**: Python (FastAPI), SQLAlchemy (ORM), Pytest (for testing).
    - **Database**: Relational Database (PostgreSQL).
-   - **Frontend**: React (Vite) with Vanilla CSS (No Tailwind unless explicitly requested).
+   - **Frontend**: React (Vite) with Tailwind CSS, GSAP, and Three.js.
 4. **Design Aesthetic**:
    - The frontend must be visually stunning, using rich colors, modern typography, glassmorphism, and dynamic animations. 
    - It should resemble the reference image provided by the user (Orient Cinemas style).
