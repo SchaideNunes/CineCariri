@@ -1,39 +1,10 @@
 import { useEffect, useState, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Environment, Float } from '@react-three/drei'
 import { Link } from 'react-router-dom'
 import { Film, Ticket, Popcorn } from 'lucide-react'
 import { gsap as gs } from 'gsap'
 import { fetchMovies } from '../api'
 import type { Movie } from '../api'
 
-// --- THREE.JS COMPONENT ---
-function CinematicShape() {
-  const meshRef = useRef<any>(null)
-  
-  useFrame((_state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x += delta * 0.2
-      meshRef.current.rotation.y += delta * 0.3
-    }
-  })
-
-  return (
-    <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-      <mesh ref={meshRef} castShadow receiveShadow>
-        <octahedronGeometry args={[2, 1]} />
-        <meshPhysicalMaterial 
-          color="#D4AF37" 
-          metalness={0.8} 
-          roughness={0.2} 
-          envMapIntensity={1}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
-        />
-      </mesh>
-    </Float>
-  )
-}
 
 // --- PRELOADER COMPONENT ---
 function Preloader({ onComplete }: { onComplete: () => void }) {
@@ -98,14 +69,15 @@ export function HomePage() {
           )}
         </div>
 
-        <div className="absolute inset-0 z-0 pointer-events-auto">
-          <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
-            <ambientLight intensity={0.5} />
-            <directionalLight position={[10, 10, 10]} intensity={1} castShadow />
-            <Environment preset="city" />
-            <CinematicShape />
-            <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
-          </Canvas>
+        <div 
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-500"
+          style={{
+            backgroundImage: `url(${window.innerWidth >= 768 ? '/Assets/Landing_desktop.png' : '/Assets/landing_mobile.png'})`
+          }}
+        >
+          {/* We can also use CSS media queries if we prefer, but for React a simple window.innerWidth works or Tailwind classes: */}
+          <div className="absolute inset-0 bg-cover bg-center bg-no-repeat md:hidden" style={{ backgroundImage: "url('/Assets/landing_mobile.png')" }}></div>
+          <div className="hidden md:block absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/Assets/Landing_desktop.png')" }}></div>
         </div>
 
         {/* Hero Content (Overlay) */}
