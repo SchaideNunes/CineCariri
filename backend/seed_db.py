@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from app.db.session import AsyncSessionLocal
 from app.models.movie import Movie
 from app.models.showtime import Room, Showtime
-from app.models.reservation import Seat
 from app.models.user import User
 from app.db.base_class import Base
 from app.db.session import engine
@@ -50,30 +49,18 @@ async def seed():
             await db.refresh(room)
             
         print("Created rooms")
-        
-        # Create Seats for rooms
-        seats = []
-        for room in rooms:
-            for row in ['A', 'B', 'C', 'D', 'E']:
-                for num in range(1, 11):
-                    seats.append(Seat(room_id=room.id, row_letter=row, seat_number=num))
-        
-        db.add_all(seats)
-        await db.commit()
-        print("Created seats")
 
-        # Create Showtimes
         # Base date is today
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         
         # Homem-Aranha
-        st1 = Showtime(movie_id=spiderman.id, room_id=sala1.id, start_time=today + timedelta(hours=20, minutes=35))
-        st2 = Showtime(movie_id=spiderman.id, room_id=sala2.id, start_time=today + timedelta(hours=20, minutes=5))
-        st3 = Showtime(movie_id=spiderman.id, room_id=sala3.id, start_time=today + timedelta(hours=20, minutes=40))
+        st1 = Showtime(movie_id=spiderman.id, room_id=sala1.id, start_time=today + timedelta(hours=20, minutes=35), format="2D", audio="DUB")
+        st2 = Showtime(movie_id=spiderman.id, room_id=sala2.id, start_time=today + timedelta(hours=20, minutes=5), format="3D", audio="DUB")
+        st3 = Showtime(movie_id=spiderman.id, room_id=sala3.id, start_time=today + timedelta(hours=20, minutes=40), format="2D", audio="LEG")
         
         # A Odisseia
-        st4 = Showtime(movie_id=odyssey.id, room_id=sala5.id, start_time=today + timedelta(hours=20, minutes=40))
-        st5 = Showtime(movie_id=odyssey.id, room_id=sala6.id, start_time=today + timedelta(hours=20, minutes=30))
+        st4 = Showtime(movie_id=odyssey.id, room_id=sala5.id, start_time=today + timedelta(hours=20, minutes=40), format="2D", audio="LEG")
+        st5 = Showtime(movie_id=odyssey.id, room_id=sala6.id, start_time=today + timedelta(hours=20, minutes=30), format="2D", audio="DUB")
 
         db.add_all([st1, st2, st3, st4, st5])
         await db.commit()

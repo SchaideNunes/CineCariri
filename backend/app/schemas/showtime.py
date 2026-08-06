@@ -19,12 +19,15 @@ class ShowtimeBase(BaseModel):
     movie_id: int
     room_id: int
     start_time: datetime
+    format: str = "2D"
+    audio: str = "DUB"
 
 class ShowtimeCreate(ShowtimeBase):
     pass
 
 class ShowtimeResponse(ShowtimeBase):
     id: int
+    available_tickets: Optional[int] = None
 
     class Config:
         from_attributes = True

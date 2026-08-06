@@ -16,6 +16,8 @@ class Showtime(Base):
     movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)
     room_id = Column(Integer, ForeignKey("rooms.id"), nullable=False)
     start_time = Column(DateTime, nullable=False)
+    format = Column(String(50), nullable=False, default="2D")
+    audio = Column(String(50), nullable=False, default="DUB")
 
     movie = relationship("Movie")
     room = relationship("Room")

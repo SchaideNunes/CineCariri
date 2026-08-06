@@ -32,3 +32,10 @@ async def read_movies(
     result = await db.execute(select(Movie).offset(skip).limit(limit))
     movies = result.scalars().all()
     return movies
+@router.get("/{movie_id}", response_model=MovieResponse)
+async def read_movie(movie_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Movie).where(Movie.id == movie_id))
+    movie = result.scalars().first()
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    return movie

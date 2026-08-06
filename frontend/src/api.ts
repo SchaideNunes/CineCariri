@@ -34,17 +34,18 @@ export interface Showtime {
   movie_id: number;
   room_id: number;
   start_time: string;
-}
-
-export interface Seat {
-  id: number;
-  room_id: number;
-  row_letter: string;
-  seat_number: number;
+  format: string;
+  audio: string;
+  available_tickets: number;
 }
 
 export const fetchMovies = async (): Promise<Movie[]> => {
   const response = await api.get('/movies/');
+  return response.data;
+};
+
+export const fetchMovieById = async (id: number): Promise<Movie> => {
+  const response = await api.get(`/movies/${id}`);
   return response.data;
 };
 
@@ -53,15 +54,10 @@ export const fetchShowtimes = async (): Promise<Showtime[]> => {
   return response.data;
 };
 
-export const fetchSeatsForRoom = async (roomId: number): Promise<Seat[]> => {
-  const response = await api.get(`/seats/${roomId}`);
-  return response.data;
-};
-
-export const createReservation = async (showtimeId: number, seatIds: number[]) => {
+export const createReservation = async (showtimeId: number, ticketsCount: number) => {
   const response = await api.post('/reservations/', {
     showtime_id: showtimeId,
-    seat_ids: seatIds,
+    tickets_count: ticketsCount,
   });
   return response.data;
 };

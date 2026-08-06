@@ -6,10 +6,12 @@ from typing import List
 import asyncpg
 
 from app.db.session import get_db
-from app.models.reservation import Reservation, SeatReservation
+from app.models.reservation import Reservation
+from app.models.showtime import Showtime
 from app.models.user import User
 from app.schemas.reservation import ReservationCreate, ReservationResponse
 from app.api.deps import get_current_active_user, get_current_active_admin
+from sqlalchemy import func
 
 router = APIRouter()
 
@@ -24,38 +26,45 @@ async def create_reservation(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    if not reservation_in.seat_ids:
-        raise HTTPException(status_code=400, detail="Must provide at least one seat.")
+    if reservation_in.tickets_count <= 0:
+        raise HTTPException(status_code=400, detail="Must reserve at least one ticket.")
         
-    # Start a transaction to create the reservation and link seats
     try:
+        # Check capacity
+        st_result = await db.execute(select(Showtime).where(Showtime.id == reservation_in.showtime_id))
+        showtime = st_result.scalars().first()
+        if not showtime:
+            raise HTTPException(status_code=404, detail="Showtime not found.")
+            
+        # Get reserved count
+        res_count_result = await db.execute(
+            select(func.sum(Reservation.tickets_count)).where(Reservation.showtime_id == showtime.id)
+        )
+        reserved = res_count_result.scalar() or 0
+        
+        # We need the room capacity
+        await db.refresh(showtime, ['room'])
+        available = showtime.room.capacity - reserved
+        
+        if reservation_in.tickets_count > available:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Not enough tickets available. Only {available} left."
+            )
+
         reservation = Reservation(
             user_id=current_user.id,
             showtime_id=reservation_in.showtime_id,
+            tickets_count=reservation_in.tickets_count,
             status="ACTIVE"
         )
         db.add(reservation)
-        await db.flush() # Flush to get the reservation.id
-        
-        for seat_id in reservation_in.seat_ids:
-            seat_res = SeatReservation(
-                reservation_id=reservation.id,
-                seat_id=seat_id,
-                showtime_id=reservation_in.showtime_id
-            )
-            db.add(seat_res)
-            
         await db.commit()
         await db.refresh(reservation)
         return reservation
         
-    except IntegrityError as e:
-        await db.rollback()
-        # Check if the error is the unique constraint on (showtime_id, seat_id)
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="One or more selected seats are already reserved for this showtime."
-        )
+    except HTTPException:
+        raise
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
