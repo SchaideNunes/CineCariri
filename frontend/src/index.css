@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cinema-black: #050505;
+  --color-cinema-red: #E50914;
+  --color-cinema-gold: #D4AF37;
+  --color-glass: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  body {
+    @apply bg-cinema-black text-white antialiased selection:bg-cinema-red selection:text-white overflow-x-hidden;
+  }
+}
+
+.glass-panel {
+  @apply bg-glass border border-glass-border backdrop-blur-md rounded-2xl;
+}
+
+/* Custom Scrollbar for non-lenis environments */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-cinema-black;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-cinema-red/50 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-cinema-red;
+}
