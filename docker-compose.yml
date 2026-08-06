@@ -25,6 +25,8 @@ services:
       - SECRET_KEY=${SECRET_KEY}
     depends_on:
       - db
+    networks:
+      - cinema_network
 
 volumes:
   postgres_data:

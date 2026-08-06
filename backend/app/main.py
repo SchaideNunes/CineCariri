@@ -4,7 +4,17 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.api.api import api_router
 
-app = FastAPI(title="Cinema API")
+from contextlib import asynccontextmanager
+from app.db.base_class import Base
+from app.db.session import engine
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+app = FastAPI(title="Cinema API", lifespan=lifespan)
 
 # Configure CORS
 origins = [
