@@ -18,3 +18,5 @@
    - Robust handling of overbooking (concurrency control when reserving seats).
 6. **Documentation**:
    - Keep this file updated if new rules are established.
+7. **Version Control**:
+   - Commit code to GitHub after every major feature implementation (e.g., after endpoints and tests are completed for an entity) rather than waiting for the entire phase to end, providing an accurate view of progress.
